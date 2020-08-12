@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { Link as RouterLink } from 'react-router-dom'
 import {
     Card,
     CardActions,
     CardActionArea,
-    CardContent,
+	CardContent,
+	CardMedia,
     Typography,
 	Button,
 	Grid,
 	makeStyles
 } from "@material-ui/core";
-import axios from 'axios';
 
 const useStyle = makeStyles({
 	media:{
@@ -22,76 +22,40 @@ const useStyle = makeStyles({
 const ProductEntry = ({product}) => {
 	const classes = useStyle();
 
-	const {
-		title,
-		excerpt,
-		slug
-	} = product
+	const { title, slug, featured_media_urls } = product;
 
-	const fetchFeaturedImage = async (id) => {
-		const res = await axios.get(`/wp-json/wp/v2/media/${product.featured_media}?_fields=guid,mime_type,media_details`)
-
-		return setFeaturedImage({
-			data: res.data,
-			loading: false,
-			success: true
-		})
-	}
-
-	const [featuredImage, setFeaturedImage] = useState({
-        data: {},
-        loading: true,
-        success: null,
-    });
-
-	useEffect(() => {
-		fetchFeaturedImage();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
 	return (
-        <Grid item xs={12} sm={6} lg={3}>
+        <Grid item xs={12} sm={6} md={4} lg={3}>
             <Card>
                 <CardActionArea>
-                    {featuredImage.loading ? (
-                        <>
-                            ...
-                        </>
-                    ) : (
-                        <>
-                            {console.log(
-                                featuredImage.data.media_details.sizes.medium
-                                    .source_url
-                            )}
-                            <img
-                                src={
-                                    featuredImage.data.media_details.sizes
-                                        .medium.source_url
-                                }
-                                alt=''
+                    <RouterLink to={`/products/${slug}`}>
+                        <CardMedia
+                            className={classes.media}
+                            image={featured_media_urls.medium}
+                        />
+                        <CardContent>
+                            <Typography
+                                gutterBottom
+								component='h2'
+								variant='body1'
+                                dangerouslySetInnerHTML={{
+                                    __html: title.rendered,
+								}}
+								style={{
+									textDecoration: 'none',
+									textAlign: 'center'
+								}}
                             />
-                        </>
-                    )}
-                    <CardContent>
-                        <Typography
-                            gutterBottom
-                            component='h2'
-                            dangerouslySetInnerHTML={{
-                                __html: title.rendered,
-                            }}
-                        />
-                        <Typography
-                            dangerouslySetInnerHTML={{
-                                __html: excerpt.rendered,
-                            }}
-                        />
-                    </CardContent>
+                        </CardContent>
+                    </RouterLink>
                 </CardActionArea>
                 <CardActions>
                     <Button
                         variant='contained'
-                        color='primary'
                         to={`/products/${slug}`}
-                        component={RouterLink}>
+                        component={RouterLink}
+						fullWidth={true}
+						variant='text'>
                         Learn more
                     </Button>
                 </CardActions>

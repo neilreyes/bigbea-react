@@ -1,46 +1,41 @@
-import React, { useEffect, useState } from "react";
-import axios from 'axios';
-import { Container, CircularProgress, Grid } from "@material-ui/core";
-import ProductEntry from './ProductEntry'
+import React, { useEffect, useContext } from "react";
+import { Container, Grid } from "@material-ui/core";
+import { Pagination } from '@material-ui/lab';
+import ProductEntry from './ProductEntry';
 import Spinner from '../Spinner';
+import { ProductsContext } from '../../../context/ProductsContext';
 
-const Products = (props) => {
-
-	const fetch = async () => {
-		const res = await axios.get(
-            "/wp-json/wp/v2/bbear_products?_fields=id,title,excerpt,link,featured_media,author,slug"
-        );
-		
-		return setProducts({
-			loading: false,
-			success: true,
-			products: res.data
-		})
-	}
-
-	const [products, setProducts] = useState({
-		products: [],
-		loading: true,
-		success: false,
-	})
+const Products = () => {
+	const { loading, getProducts, getProductsNext, products } = useContext(ProductsContext);
 
 	useEffect(() => {
-		fetch()
+		getProducts()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	const handleChange = (e) => {
+		console.log(e)
+	}
 
     return (
         <Container style={{ marginTop: "100px" }}>
-            {products.loading ? (
+            {loading ? (
                 <>
                     <Spinner />
                 </>
             ) : (
                 <>
-                    <Grid container spacing={3}>
-                        {products.products.map((product) => (
-                            <ProductEntry key={product.id} product={product} />
-                        ))}
-                    </Grid>
+                    {products !== null && (
+                        <Grid container spacing={3}>
+                            {products.data.map((product) => (
+                                <ProductEntry
+                                    key={product.id}
+                                    product={product}
+                                />
+                            ))}
+                        </Grid>
+                    )}
+					<Pagination count={products.totalPages} onChange={handleChange}/>
                 </>
             )}
         </Container>
