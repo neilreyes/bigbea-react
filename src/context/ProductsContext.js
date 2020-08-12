@@ -6,7 +6,7 @@ const initialState = {
     products: {
         data: [],
         offset: 0,
-        perPage: 10,
+        perPage: 20,
         currentPage: 1,
         total: 0,
         totalPages: 0,
@@ -22,47 +22,37 @@ export const ProductsProvider = ({children}) => {
 
 	const [state, dispatch] = useReducer(ProductsReducer, initialState)
 	
-	const getProducts = async () => {
-		try {
-			const res = await axios.get(
-                "/wp-json/wp/v2/bbear_products?page=1&_fields=id,title,link,featured_media,author,slug,featured_media_urls"
-            );
-			
-			dispatch({
+	const getProducts = async (
+        currentPage = state.products.currentPage,
+        perPage = state.products.perPage
+    ) => {
+        try {
+            const res = await axios.get("/wp-json/wp/v2/bbear_products", {
+                params: {
+                    page: currentPage,
+                    per_page: perPage,
+                    _fields:
+                        "id,title,link,featured_media,author,slug,featured_media_urls",
+                },
+			});
+
+            dispatch({
                 type: "GET_PRODUCTS",
                 payload: {
+                    perPage: state.products.perPage,
                     data: res.data,
-                    totalPages: res.headers["x-wp-totalpages"],
-					total: res.headers["x-wp-total"],
-					currentPage: 1
+                    totalPages: parseInt(res.headers["x-wp-totalpages"]),
+                    total: parseInt(res.headers["x-wp-total"]),
+                    currentPage,
                 },
             });
-
-		} catch (error) {
-			dispatch({
-				type: "PRODUCT_ERROR",
-				payload: error
-			})
-		}
-	}
-	// Pagination Next
-	const getProductsNext = async (currentPage) =>{
-		dispatch({
-			type: "GET_PRODUCTS_NEXT",
-			payload: {
-				currentPage: currentPage + 1
-			}
-		})
-	}
-	// Pagination Prev
-	const getProductsPrev = async (currentPage) => {
-		dispatch({
-			type: "GET_PRODUCTS_PREV",
-			payload: {
-				currentPage: currentPage - 1,
-			},
-		});
-	}
+        } catch (error) {
+            dispatch({
+                type: "PRODUCT_ERROR",
+                payload: error,
+            });
+        }
+    };
 
 	return (
 		<ProductsContext.Provider
@@ -72,8 +62,6 @@ export const ProductsProvider = ({children}) => {
 				loading: state.loading,
 				error: state.error,
 				getProducts,
-				getProductsNext,
-				getProductsPrev
 			}}
 		>
 			{children}

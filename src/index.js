@@ -1,10 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
+import { debugContextDevtool } from 'react-context-devtool'
+const container = document.getElementById("root");
 
 ReactDOM.render(
     <React.StrictMode>
         <App />
     </React.StrictMode>,
-    document.getElementById("root")
+    container
 );
+
+// Attachh root container
+debugContextDevtool(container, {
+	disable: true
+})

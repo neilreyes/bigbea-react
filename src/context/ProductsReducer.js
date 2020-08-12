@@ -2,28 +2,16 @@ export default (state, action) => {
 	const { type, payload, pagination, total } = action;
 
 	switch (type) {
+		case "LOADING":
+			return {
+				...state,
+				loading: false
+			}
+
         case "GET_PRODUCTS":
             return {
                 ...state,
                 products: payload,
-                loading: false,
-            };
-
-        case "GET_PRODUCTS_NEXT":
-            return {
-                ...state,
-                products: {
-                    currentPage: payload,
-                },
-                loading: false,
-            };
-
-        case "GET_PRODUCTS_PREV":
-            return {
-                ...state,
-                products: {
-                    currentPage: payload,
-                },
                 loading: false,
             };
 
